@@ -1,0 +1,201 @@
+{
+  "name": "run_qng_vqe",
+  "description": "执行量子自然梯度VQE算法，使用Fubini-Study度量张量加速优化收敛",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "system_definition": {
+        "type": "object",
+        "description": "量子系统定义",
+        "properties": {
+          "hamiltonian_type": {
+            "type": "string",
+            "description": "Hamiltonian类型",
+            "enum": ["molecule", "spin_system", "custom_pauli", "ising"],
+            "default": "molecule"
+          },
+          "molecule_name": {
+            "type": "string",
+            "description": "分子名称（当hamiltonian_type为molecule时）",
+            "examples": ["H2", "LiH", "BeH2", "H2O"]
+          },
+          "bond_length": {
+            "type": "number",
+            "description": "键长（埃）",
+            "default": 0.7
+          },
+          "custom_hamiltonian": {
+            "type": "object",
+            "description": "自定义Hamiltonian定义（当hamiltonian_type为custom时）",
+            "properties": {
+              "coefficients": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "pauli_strings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": ["hamiltonian_type"]
+      },
+      "ansatz_config": {
+        "type": "object",
+        "description": "变分电路配置",
+        "properties": {
+          "ansatz_type": {
+            "type": "string",
+            "description": "Ansatz类型",
+            "enum": ["hardware_efficient", "uccsd", "custom", "single_qubit_rotations"],
+            "default": "hardware_efficient"
+          },
+          "n_layers": {
+            "type": "integer",
+            "description": "电路层数",
+            "default": 2,
+            "minimum": 1,
+            "maximum": 10
+          },
+          "rotation_gates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["RX", "RY", "RZ"]
+            },
+            "description": "旋转门类型（用于硬件高效ansatz）",
+            "default": ["RY", "RZ"]
+          },
+          "entangling_gate": {
+            "type": "string",
+            "description": "纠缠门类型",
+            "enum": ["CNOT", "CZ", "CRZ"],
+            "default": "CNOT"
+          }
+        }
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "step_size": {
+            "type": "number",
+            "description": "QNG优化器学习率",
+            "default": 0.01,
+            "minimum": 1e-4,
+            "maximum": 1.0
+          },
+          "metric_approx": {
+            "type": "string",
+            "description": "Fubini-Study度量张量近似方法",
+            "enum": ["diag", "block-diag", "full"],
+            "default": "block-diag"
+          },
+          "regularization": {
+            "type": "number",
+            "description": "度量张量正则化参数λ",
+            "default": 0.001,
+            "minimum": 1e-6,
+            "maximum": 0.1
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 500,
+            "minimum": 10,
+            "maximum": 2000
+          },
+          "convergence_threshold": {
+            "type": "number",
+            "description": "能量收敛阈值",
+            "default": 1e-6,
+            "minimum": 1e-12,
+            "maximum": 1e-3
+          },
+          "initial_params": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "初始电路参数，不指定则随机初始化"
+          },
+          "compare_standard": {
+            "type": "boolean",
+            "description": "是否与标准梯度下降进行对比",
+            "default": true
+          },
+          "standard_step_size": {
+            "type": "number",
+            "description": "标准梯度下降的学习率（用于对比）",
+            "default": 0.01
+          },
+          "track_metric_condition": {
+            "type": "boolean",
+            "description": "是否跟踪度量张量的条件数",
+            "default": false
+          },
+          "save_optimization_path": {
+            "type": "boolean",
+            "description": "是否保存完整的优化路径",
+            "default": true
+          },
+          "print_progress": {
+            "type": "boolean",
+            "description": "是否打印优化进度",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["system_definition", "ansatz_config"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "qng_results": {
+        "type": "object",
+        "description": "QNG优化结果"
+      },
+      "standard_results": {
+        "type": "object",
+        "description": "标准梯度下降结果（如果启用对比）"
+      },
+      "comparison": {
+        "type": "object",
+        "description": "QNG与标准方法的对比分析"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "optimization_analysis": {
+        "type": "object",
+        "description": "优化过程分析"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "computational_details": {
+        "type": "object",
+        "description": "计算详细信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

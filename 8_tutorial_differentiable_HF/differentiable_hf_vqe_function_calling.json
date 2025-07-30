@@ -1,0 +1,177 @@
+{
+  "name": "run_differentiable_hf_vqe",
+  "description": "执行可微分Hartree-Fock VQE算法，同时优化电路参数、分子几何和基组参数",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "symbols": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "原子符号列表，如['H', 'H']或['Li', 'H']",
+        "examples": [["H", "H"], ["Li", "H"], ["Be", "H", "H"]]
+      },
+      "initial_geometry": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "description": "初始分子几何结构，每行为[x, y, z]坐标（原子单位）",
+        "examples": [[[-0.67, 0.0, 0.0], [0.67, 0.0, 0.0]]]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "optimize_geometry": {
+            "type": "boolean",
+            "description": "是否优化分子几何结构",
+            "default": true
+          },
+          "optimize_basis": {
+            "type": "boolean",
+            "description": "是否优化基组参数（指数和收缩系数）",
+            "default": false
+          },
+          "initial_coeff": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "description": "初始基组收缩系数，不指定则使用标准STO-3G"
+          },
+          "initial_alpha": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "description": "初始基组指数，不指定则使用标准STO-3G"
+          },
+          "circuit_params": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "初始电路参数"
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 50,
+            "minimum": 10,
+            "maximum": 200
+          },
+          "geometry_lr": {
+            "type": "number",
+            "description": "几何优化学习率",
+            "default": 0.5,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "circuit_lr": {
+            "type": "number",
+            "description": "电路参数学习率",
+            "default": 0.25,
+            "minimum": 0.01,
+            "maximum": 1.0
+          },
+          "basis_lr": {
+            "type": "number",
+            "description": "基组参数学习率",
+            "default": 0.25,
+            "minimum": 0.01,
+            "maximum": 1.0
+          },
+          "force_threshold": {
+            "type": "number",
+            "description": "力收敛阈值（原子单位）",
+            "default": 1e-6,
+            "minimum": 1e-10,
+            "maximum": 1e-3
+          },
+          "visualize_orbitals": {
+            "type": "boolean",
+            "description": "是否生成轨道可视化数据",
+            "default": false
+          },
+          "print_progress": {
+            "type": "boolean",
+            "description": "是否打印优化进度",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["symbols", "initial_geometry"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "object",
+        "description": "分子信息"
+      },
+      "final_energy": {
+        "type": "number",
+        "description": "最终优化的能量值"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "optimized_geometry": {
+        "type": "array",
+        "description": "优化后的分子几何结构"
+      },
+      "optimized_circuit_params": {
+        "type": "array",
+        "description": "优化后的电路参数"
+      },
+      "optimized_basis": {
+        "type": "object",
+        "description": "优化后的基组参数（如果启用）"
+      },
+      "forces": {
+        "type": "array",
+        "description": "最终的原子核力"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "optimization_history": {
+        "type": "object",
+        "description": "优化过程历史信息"
+      },
+      "orbital_visualization": {
+        "type": "object",
+        "description": "轨道可视化数据（如果启用）"
+      },
+      "computational_details": {
+        "type": "object",
+        "description": "计算详细信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

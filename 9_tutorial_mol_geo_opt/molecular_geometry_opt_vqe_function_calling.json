@@ -1,0 +1,178 @@
+{
+  "name": "run_molecular_geometry_opt_vqe",
+  "description": "执行分子几何优化VQE算法，联合优化量子电路参数和分子几何结构",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "symbols": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "原子符号列表，如['H', 'H', 'H']或['H', 'O', 'H']",
+        "examples": [["H", "H", "H"], ["H", "O", "H"], ["N", "H", "H", "H"]]
+      },
+      "initial_coordinates": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "description": "初始分子几何结构，每行为[x, y, z]坐标（原子单位）",
+        "examples": [[[0.0, 0.0, 0.0], [1.4, 0.0, 0.0], [0.7, 1.2, 0.0]]]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "charge": {
+            "type": "integer",
+            "description": "分子总电荷",
+            "default": 0
+          },
+          "multiplicity": {
+            "type": "integer",
+            "description": "自旋多重度",
+            "default": 1
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 50,
+            "minimum": 10,
+            "maximum": 200
+          },
+          "circuit_lr": {
+            "type": "number",
+            "description": "电路参数学习率",
+            "default": 0.8,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "geometry_lr": {
+            "type": "number",
+            "description": "几何坐标学习率",
+            "default": 0.8,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "gradient_threshold": {
+            "type": "number",
+            "description": "梯度收敛阈值（Ha/Bohr）",
+            "default": 1e-5,
+            "minimum": 1e-8,
+            "maximum": 1e-3
+          },
+          "energy_threshold": {
+            "type": "number",
+            "description": "能量收敛阈值（Ha）",
+            "default": 1e-8,
+            "minimum": 1e-12,
+            "maximum": 1e-5
+          },
+          "finite_diff_step": {
+            "type": "number",
+            "description": "有限差分步长",
+            "default": 0.01,
+            "minimum": 1e-4,
+            "maximum": 0.1
+          },
+          "adaptive_circuit": {
+            "type": "boolean",
+            "description": "是否使用自适应电路选择",
+            "default": true
+          },
+          "track_bond_lengths": {
+            "type": "boolean",
+            "description": "是否跟踪键长变化",
+            "default": true
+          },
+          "max_excitations": {
+            "type": "integer",
+            "description": "最大考虑的激发操作数",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 20
+          },
+          "print_progress": {
+            "type": "boolean",
+            "description": "是否打印优化进度",
+            "default": true
+          },
+          "save_trajectory": {
+            "type": "boolean",
+            "description": "是否保存完整优化轨迹",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["symbols", "initial_coordinates"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "object",
+        "description": "分子信息"
+      },
+      "optimized_energy": {
+        "type": "number",
+        "description": "优化后的分子能量"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "optimized_geometry": {
+        "type": "array",
+        "description": "优化后的分子几何结构"
+      },
+      "optimized_circuit_params": {
+        "type": "array",
+        "description": "优化后的电路参数"
+      },
+      "final_gradients": {
+        "type": "array",
+        "description": "最终的核坐标梯度（力）"
+      },
+      "convergence_info": {
+        "type": "object",
+        "description": "收敛信息"
+      },
+      "optimization_trajectory": {
+        "type": "object",
+        "description": "优化轨迹数据"
+      },
+      "bond_analysis": {
+        "type": "object",
+        "description": "键长分析结果"
+      },
+      "circuit_info": {
+        "type": "object",
+        "description": "量子电路信息"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "computational_details": {
+        "type": "object",
+        "description": "计算详细信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

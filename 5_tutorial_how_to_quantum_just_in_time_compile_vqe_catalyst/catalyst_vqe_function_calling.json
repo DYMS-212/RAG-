@@ -1,0 +1,120 @@
+{
+  "name": "run_catalyst_vqe_molecular",
+  "description": "执行Catalyst JIT编译的VQE算法，通过量子即时编译技术提升性能",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "molecule": {
+        "type": "string",
+        "description": "分子标识符，支持PennyLane datasets中的分子",
+        "examples": ["H2", "H3+", "LiH", "BeH2"]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "ansatz_type": {
+            "type": "string",
+            "description": "变分电路ansatz类型",
+            "enum": ["double_excitation", "hardware_efficient", "uccsd"],
+            "default": "double_excitation"
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "Optax优化器类型",
+            "enum": ["sgd", "adam", "adamw", "rmsprop"],
+            "default": "sgd"
+          },
+          "learning_rate": {
+            "type": "number",
+            "description": "优化器学习率",
+            "default": 0.4,
+            "minimum": 0.001,
+            "maximum": 2.0
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 200
+          },
+          "initial_params": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "初始参数值数组，不指定则使用全零初始化"
+          },
+          "compile_optimization": {
+            "type": "boolean",
+            "description": "是否编译整个优化循环以获得最佳性能",
+            "default": true
+          },
+          "diff_method": {
+            "type": "string",
+            "description": "量子电路微分方法",
+            "enum": ["adjoint", "parameter-shift"],
+            "default": "adjoint"
+          },
+          "convergence_threshold": {
+            "type": "number",
+            "description": "收敛阈值",
+            "default": 1e-6,
+            "minimum": 1e-12,
+            "maximum": 1e-3
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["molecule"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "string",
+        "description": "计算的分子"
+      },
+      "ground_state_energy": {
+        "type": "number",
+        "description": "基态能量值"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "compilation_info": {
+        "type": "object",
+        "description": "JIT编译相关信息"
+      },
+      "optimization_info": {
+        "type": "object",
+        "description": "优化过程信息"
+      },
+      "performance_metrics": {
+        "type": "object",
+        "description": "性能指标"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

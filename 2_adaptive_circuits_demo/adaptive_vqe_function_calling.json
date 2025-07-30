@@ -1,0 +1,117 @@
+{
+  "name": "run_adaptive_vqe_molecular",
+  "description": "执行Adaptive VQE算法计算分子基态能量，通过自适应选择激发态优化计算效率",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "symbols": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "原子符号列表，如['H', 'H', 'H']或['Li', 'H']",
+        "examples": [["H", "H", "H"], ["Li", "H"], ["Be", "H", "H"]]
+      },
+      "coordinates": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "原子坐标的一维数组，按[x1,y1,z1,x2,y2,z2,...]顺序排列（原子单位）"
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "charge": {
+            "type": "integer",
+            "description": "分子电荷",
+            "default": 0
+          },
+          "active_electrons": {
+            "type": "integer",
+            "description": "活跃电子数，不指定时自动计算",
+            "minimum": 1
+          },
+          "active_orbitals": {
+            "type": "integer", 
+            "description": "活跃轨道数，不指定时自动计算",
+            "minimum": 1
+          },
+          "gradient_threshold": {
+            "type": "number",
+            "description": "激发态选择的梯度阈值",
+            "default": 1e-5,
+            "minimum": 1e-8,
+            "maximum": 1e-2
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "每阶段最大优化迭代次数",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 200
+          },
+          "learning_rate": {
+            "type": "number",
+            "description": "优化器学习率",
+            "default": 0.5,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "优化器类型", 
+            "enum": ["sgd", "adam", "adagrad"],
+            "default": "sgd"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["symbols", "coordinates"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "object",
+        "description": "分子信息"
+      },
+      "ground_state_energy": {
+        "type": "number",
+        "description": "基态能量值"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "algorithm_config": {
+        "type": "object", 
+        "description": "完整的算法配置信息"
+      },
+      "adaptive_selection": {
+        "type": "object",
+        "description": "自适应选择过程信息"
+      },
+      "optimization_info": {
+        "type": "object",
+        "description": "优化过程信息"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

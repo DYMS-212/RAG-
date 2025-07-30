@@ -1,0 +1,129 @@
+{
+  "name": "run_spin_sector_vqe_molecular",
+  "description": "执行自旋扇区VQE算法，计算分子在不同自旋量子数下的能量态",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "symbols": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "原子符号列表，如['H', 'H']或['Li', 'H']",
+        "examples": [["H", "H"], ["Li", "H"], ["Be", "H", "H"]]
+      },
+      "coordinates": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "原子坐标的一维数组，按[x1,y1,z1,x2,y2,z2,...]顺序排列（原子单位）"
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "electrons": {
+            "type": "integer",
+            "description": "电子数，不指定时自动计算",
+            "minimum": 1
+          },
+          "target_spin_sector": {
+            "type": "integer",
+            "description": "目标自旋扇区：0表示基态(S=0)，1表示三重态(S=1)",
+            "enum": [0, 1],
+            "default": 0
+          },
+          "delta_sz": {
+            "type": "integer",
+            "description": "激发的自旋投影变化，不指定时根据target_spin_sector自动设置",
+            "enum": [0, 1, -1]
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 500
+          },
+          "learning_rate": {
+            "type": "number",
+            "description": "优化器学习率",
+            "default": 0.8,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "优化器类型",
+            "enum": ["sgd", "adam", "adamw", "rmsprop"],
+            "default": "sgd"
+          },
+          "convergence_threshold": {
+            "type": "number",
+            "description": "收敛阈值",
+            "default": 1e-6,
+            "minimum": 1e-12,
+            "maximum": 1e-3
+          },
+          "calculate_total_spin": {
+            "type": "boolean",
+            "description": "是否计算总自旋量子数",
+            "default": true
+          },
+          "initial_state": {
+            "type": "string",
+            "description": "初始态选择",
+            "enum": ["hf", "flipped_hf", "custom"],
+            "default": "hf"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["symbols", "coordinates"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "object",
+        "description": "分子信息"
+      },
+      "energy": {
+        "type": "number",
+        "description": "计算得到的能量值"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "spin_info": {
+        "type": "object",
+        "description": "自旋相关信息"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "optimization_info": {
+        "type": "object",
+        "description": "优化过程信息"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

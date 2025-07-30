@@ -1,0 +1,182 @@
+{
+  "name": "run_rotoselect_optimization",
+  "description": "执行Rotoselect算法进行量子电路结构学习和参数优化",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "hamiltonian": {
+        "type": "object",
+        "description": "Hamiltonian定义",
+        "properties": {
+          "coefficients": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Hamiltonian系数数组"
+          },
+          "observables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "泡利算符列表，如['Z0', 'Y1', 'X0']",
+            "examples": [["Z0", "Y1", "X0"], ["Z0Z1", "X0X1", "Y0"]]
+          }
+        },
+        "required": ["coefficients", "observables"]
+      },
+      "n_qubits": {
+        "type": "integer",
+        "description": "量子比特数量",
+        "minimum": 1,
+        "maximum": 8
+      },
+      "circuit_structure": {
+        "type": "object",
+        "description": "电路结构定义",
+        "properties": {
+          "rotation_positions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "qubit": {
+                  "type": "integer",
+                  "description": "作用的量子比特"
+                },
+                "layer": {
+                  "type": "integer", 
+                  "description": "门所在的层数"
+                }
+              }
+            },
+            "description": "旋转门位置定义"
+          },
+          "entangling_gates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "gate_type": {
+                  "type": "string",
+                  "enum": ["CNOT", "CZ"],
+                  "description": "纠缠门类型"
+                },
+                "qubits": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "description": "作用的量子比特对"
+                }
+              }
+            },
+            "description": "纠缠门定义"
+          }
+        },
+        "required": ["rotation_positions"]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "initial_params": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "初始参数值数组"
+          },
+          "initial_gates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["X", "Y", "Z"]
+            },
+            "description": "初始门选择数组"
+          },
+          "max_cycles": {
+            "type": "integer",
+            "description": "最大优化周期数",
+            "default": 30,
+            "minimum": 1,
+            "maximum": 200
+          },
+          "convergence_threshold": {
+            "type": "number",
+            "description": "收敛阈值",
+            "default": 1e-6,
+            "minimum": 1e-12,
+            "maximum": 1e-3
+          },
+          "gate_choices": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["X", "Y", "Z"]
+            },
+            "description": "可选择的门类型",
+            "default": ["X", "Y", "Z"]
+          },
+          "shots": {
+            "type": "integer",
+            "description": "测量次数",
+            "default": 1000,
+            "minimum": 100,
+            "maximum": 10000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["hamiltonian", "n_qubits", "circuit_structure"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "optimal_energy": {
+        "type": "number",
+        "description": "优化后的最小能量值"
+      },
+      "optimal_parameters": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "最优参数值"
+      },
+      "optimal_gates": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "最优门选择"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "optimization_history": {
+        "type": "object",
+        "description": "优化过程历史信息"
+      },
+      "circuit_info": {
+        "type": "object",
+        "description": "电路结构信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

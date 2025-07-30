@@ -1,0 +1,188 @@
+{
+  "name": "run_implicit_diff_vqe",
+  "description": "执行隐式微分VQE算法，计算参数化量子系统的响应函数和磁化率",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "system_params": {
+        "type": "object",
+        "description": "量子系统参数定义",
+        "properties": {
+          "n_qubits": {
+            "type": "integer",
+            "description": "量子比特/自旋数量",
+            "minimum": 2,
+            "maximum": 10
+          },
+          "J": {
+            "type": "number",
+            "description": "自旋相互作用强度",
+            "default": 1.0
+          },
+          "gamma": {
+            "type": "number", 
+            "description": "横向磁场强度",
+            "default": 1.0
+          },
+          "delta": {
+            "type": "number",
+            "description": "纵向小磁场（数值稳定性）",
+            "default": 0.1
+          }
+        },
+        "required": ["n_qubits"]
+      },
+      "parameter_range": {
+        "type": "object",
+        "description": "参数扫描范围定义",
+        "properties": {
+          "parameter_name": {
+            "type": "string",
+            "description": "扫描的参数名称",
+            "default": "a"
+          },
+          "min_value": {
+            "type": "number",
+            "description": "参数最小值",
+            "default": 0.0
+          },
+          "max_value": {
+            "type": "number",
+            "description": "参数最大值",
+            "default": 3.0
+          },
+          "n_points": {
+            "type": "integer",
+            "description": "扫描点数",
+            "default": 100,
+            "minimum": 10,
+            "maximum": 1000
+          }
+        }
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "ansatz_type": {
+            "type": "string",
+            "description": "变分电路ansatz类型",
+            "enum": ["simplified_two_design", "hardware_efficient", "custom"],
+            "default": "simplified_two_design"
+          },
+          "n_layers": {
+            "type": "integer",
+            "description": "变分电路层数",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 20
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "JAXOpt优化器类型",
+            "enum": ["gradient_descent", "lbfgs", "adam"],
+            "default": "gradient_descent"
+          },
+          "learning_rate": {
+            "type": "number",
+            "description": "优化器学习率",
+            "default": 0.01,
+            "minimum": 1e-5,
+            "maximum": 1.0
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "每次优化的最大迭代次数",
+            "default": 1000,
+            "minimum": 100,
+            "maximum": 5000
+          },
+          "tolerance": {
+            "type": "number",
+            "description": "优化收敛容忍度",
+            "default": 1e-15,
+            "minimum": 1e-20,
+            "maximum": 1e-6
+          },
+          "regularization": {
+            "type": "number",
+            "description": "正则化系数",
+            "default": 0.001,
+            "minimum": 0.0,
+            "maximum": 0.1
+          },
+          "observable": {
+            "type": "string",
+            "description": "测量的物理量",
+            "enum": ["magnetization", "energy", "custom"],
+            "default": "magnetization"
+          },
+          "use_jit": {
+            "type": "boolean",
+            "description": "是否使用JAX JIT编译",
+            "default": true
+          },
+          "compare_exact": {
+            "type": "boolean",
+            "description": "是否与精确解对比（仅小系统）",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["system_params", "parameter_range"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "parameter_values": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "扫描的参数值数组"
+      },
+      "susceptibility_values": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "计算得到的磁化率/响应函数值"
+      },
+      "expectation_values": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "观测量的期望值"
+      },
+      "exact_comparison": {
+        "type": "object",
+        "description": "与精确解的对比结果（如果启用）"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "computational_info": {
+        "type": "object",
+        "description": "计算过程信息"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

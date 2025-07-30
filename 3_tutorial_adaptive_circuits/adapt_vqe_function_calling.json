@@ -1,0 +1,132 @@
+{
+  "name": "run_adapt_vqe_molecular",
+  "description": "执行ADAPT-VQE算法计算分子基态能量，支持自适应优化器和稀疏Hamiltonian加速",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "symbols": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "原子符号列表，如['Li', 'H']或['H', 'H', 'H']",
+        "examples": [["Li", "H"], ["Be", "H", "H"], ["H", "H", "O"]]
+      },
+      "geometry": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "description": "原子几何坐标的二维数组，每行为[x, y, z]（Bohr单位）",
+        "examples": [[[0.0, 0.0, 0.0], [0.0, 0.0, 2.969280527]]]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "active_electrons": {
+            "type": "integer",
+            "description": "活跃电子数，不指定时自动计算",
+            "minimum": 1
+          },
+          "active_orbitals": {
+            "type": "integer",
+            "description": "活跃轨道数，不指定时自动计算",
+            "minimum": 1
+          },
+          "method": {
+            "type": "string",
+            "description": "电路构建方法",
+            "enum": ["adaptive_optimizer", "manual"],
+            "default": "adaptive_optimizer"
+          },
+          "gradient_threshold": {
+            "type": "number",
+            "description": "梯度选择阈值（仅manual模式有效）",
+            "default": 1e-5,
+            "minimum": 1e-8,
+            "maximum": 1e-2
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "每阶段最大优化迭代次数",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 100
+          },
+          "learning_rate": {
+            "type": "number",
+            "description": "优化器学习率",
+            "default": 0.5,
+            "minimum": 0.01,
+            "maximum": 2.0
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "优化器类型",
+            "enum": ["sgd", "adam", "adagrad"],
+            "default": "sgd"
+          },
+          "use_sparse": {
+            "type": "boolean",
+            "description": "是否使用稀疏Hamiltonian优化",
+            "default": false
+          },
+          "drain_pool": {
+            "type": "boolean",
+            "description": "是否从操作池中移除已选择的门",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["symbols", "geometry"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "object",
+        "description": "分子信息"
+      },
+      "ground_state_energy": {
+        "type": "number",
+        "description": "基态能量值"
+      },
+      "energy_unit": {
+        "type": "string",
+        "description": "能量单位"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "circuit_construction": {
+        "type": "object",
+        "description": "电路构建过程信息"
+      },
+      "optimization_info": {
+        "type": "object",
+        "description": "优化过程信息"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}

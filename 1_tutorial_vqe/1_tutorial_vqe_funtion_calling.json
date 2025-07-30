@@ -1,0 +1,94 @@
+{
+  "name": "run_vqe_molecular",
+  "description": "执行VQE算法计算分子基态能量，返回完整的算法配置和结果信息",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "molecule": {
+        "type": "string",
+        "description": "分子标识符，支持H2, LiH, H2O, NH3, CH4等",
+        "examples": ["H2", "LiH", "H2O"]
+      },
+      "config": {
+        "type": "object",
+        "description": "算法配置参数",
+        "properties": {
+          "electrons": {
+            "type": "integer",
+            "description": "分子电子数，不指定时自动从分子数据计算",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "max_iterations": {
+            "type": "integer",
+            "description": "最大优化迭代次数",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "conv_tol": {
+            "type": "number",
+            "description": "能量收敛容忍度(Hartree)",
+            "default": 1e-6,
+            "minimum": 1e-12,
+            "maximum": 1e-3
+          },
+          "learning_rate": {
+            "type": "number", 
+            "description": "优化器学习率",
+            "default": 0.4,
+            "minimum": 0.001,
+            "maximum": 1.0
+          },
+          "optimizer": {
+            "type": "string",
+            "description": "经典优化器类型",
+            "enum": ["sgd", "adam", "adagrad"],
+            "default": "sgd"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": ["molecule"],
+    "additionalProperties": false
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "执行是否成功"
+      },
+      "molecule": {
+        "type": "string",
+        "description": "计算的分子"
+      },
+      "ground_state_energy": {
+        "type": "number",
+        "description": "基态能量值"
+      },
+      "energy_unit": {
+        "type": "string", 
+        "description": "能量单位"
+      },
+      "algorithm_config": {
+        "type": "object",
+        "description": "完整的算法配置信息"
+      },
+      "optimization_info": {
+        "type": "object",
+        "description": "优化过程信息"
+      },
+      "system_info": {
+        "type": "object",
+        "description": "量子系统信息"
+      },
+      "error": {
+        "type": "string",
+        "description": "错误信息(仅在失败时存在)"
+      }
+    },
+    "required": ["success"]
+  }
+}
